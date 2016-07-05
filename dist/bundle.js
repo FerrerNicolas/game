@@ -7718,7 +7718,7 @@ const explosionSprite = new Image(30, 30)
 explosionSprite.src = './img/boom.png'
 
 const player = { x: 0, y: 0, sprite: playerSprite }
-const explosion = { x: 50, y: 50, sprite: explosionSprite }
+const explosion = { x: 50, y: 50, sprite: explosionSprite, opacity: 1, scale: 1 }
 var mov = TweenMax.to(player, 2, { x: 100, y: 100, sprite: playerSprite, repeat: -1, repeatDelay: 1, yoyo: true })
 var dead = false
 
@@ -7727,15 +7727,17 @@ function renderLoop () {
     dead = true
     mov.pause()
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
-    TweenMax.to(explosion, 4, { x: 50, y: 50, sprite: explosionSprite, opacity: 0, scale: 3 })
+    TweenMax.to(explosion, 1.5, { opacity: 0, x: 50, y: 50, sprite: explosionSprite, scale: 3 })
   } else if (!dead) {
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
     const { x, y, sprite } = player
     ctx.drawImage(sprite, x, y, sprite.width * 2, sprite.height * 2)
   } else {
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
-    const { x, y, sprite } = explosion
-    ctx.drawImage(sprite, x, y, sprite.width, sprite.height)
+    const { x, y, sprite, opacity, scale } = explosion
+    ctx.globalAlpha = opacity
+    ctx.drawImage(sprite, x, y, sprite.width * scale, sprite.height * scale)
+    ctx.globalAlpha = 1
   }
 }
 renderLoop()
