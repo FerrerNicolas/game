@@ -9790,7 +9790,7 @@ const C = require('./constants.js')
 const TweenMax = require('gsap')
 
 class Turn {
-  constructor (players, inputs) {
+  constructor (players, inputs, projectiles) {
     if (players === undefined) {
       this.players = [{x: 0, y: 0, alive: true, xtween: null, ytween: null}]
     } else {
@@ -9800,6 +9800,11 @@ class Turn {
       this.inputs = [{w: false, a: false, s: false, d: false, sup: false, sdown: false, sleft: false, sright: false}]
     } else {
       this.inputs = inputs
+    }
+    if (projectiles === undefined) {
+      this.projectiles = []
+    } else {
+      this.projectiles = projectiles
     }
   }
 
@@ -9825,27 +9830,77 @@ class Turn {
   }
 
   clone () {
-    const { players, inputs } = this
-    return new Turn(clone(players), clone(inputs))
+    const { players, inputs, projectiles } = this
+    return new Turn(clone(players), clone(inputs), clone(projectiles))
+  }
+  addProjectile (whose, dir) {
+    const proj = {x: this.players[whose].x, y: this.players[whose].y, whose: whose, dir: dir, speed: null, tween: null}
+    switch (dir) {
+      case 0: proj.tween = TweenMax.to(proj, 0.1, {y: '-=8px'})
+        break
+      case 1: proj.tween = TweenMax.to(proj, 0.1, {y: '-=8px', x: '+=8px'})
+        break
+      case 2: proj.tween = TweenMax.to(proj, 0.1, {x: '+=8px'})
+        break
+      case 3: proj.tween = TweenMax.to(proj, 0.1, {x: '+=8px', y: '+=8px'})
+        break
+      case 4: proj.tween = TweenMax.to(proj, 6, {y: '+=500px'})
+        break
+      case 5: proj.tween = TweenMax.to(proj, 0.1, {y: '+=8px', x: '-=8px'})
+        break
+      case 6: proj.tween = TweenMax.to(proj, 0.1, {x: '-=8px'})
+        break
+      case 7: proj.tween = TweenMax.to(proj, 0.1, {y: '-=8px', x: '-=8px'})
+        break
+    }
+    this.projectiles.push(proj)
   }
 
   evolve () {
     const nextTurn = this.clone()
-    const { players, inputs } = nextTurn
+    const { players, inputs, projectiles } = nextTurn
 
     players.forEach((player, i) => {
       if (inputs[i].a === true) {
-        player.xtween = TweenMax.to(player, 0.01, {x: '-=5px'})
+        player.xtween = TweenMax.to(player, 0.1, {x: '-=5px'})
       }
       if (inputs[i].d === true) {
-        player.xtween = TweenMax.to(player, 0.01, {x: '+=5px'})
+        player.xtween = TweenMax.to(player, 0.1, {x: '+=5px'})
       }
       if (inputs[i].w === true) {
-        player.ytween = TweenMax.to(player, 0.01, {y: '-=5px'})
+        player.ytween = TweenMax.to(player, 0.1, {y: '-=5px'})
       }
       if (inputs[i].s === true) {
-        player.ytween = TweenMax.to(player, 0.01, {y: '+=5px'})
+        player.ytween = TweenMax.to(player, 0.1, {y: '+=5px'})
       }
+
+      if (inputs[i].sup === true) {
+        if (inputs[i].sleft === true) {
+          nextTurn.addProjectile(i, 7)
+        } else if (inputs[i].sright === true) {
+          nextTurn.addProjectile(i, 1)
+        } else {
+          nextTurn.addProjectile(i, 0)
+        }
+      } else if (inputs[i].sdown === true) {
+        if (inputs[i].sleft === true) {
+          nextTurn.addProjectile(i, 5)
+        } else if (inputs[i].sright === true) {
+          nextTurn.addProjectile(i, 3)
+        } else {
+          nextTurn.addProjectile(i, 4)
+        }
+      } else if (inputs[i].sright === true) {
+        nextTurn.addProjectile(i, 2)
+      } else if (inputs[i].sleft === true) {
+        nextTurn.addProjectile(i, 6)
+      }
+      console.log(projectiles)
+      projectiles.forEach((proj, i) => {
+        console.log(proj.tween)
+        console.log(proj.y)
+        proj.tween.play()
+      })
     })
     return nextTurn
   }
@@ -9884,12 +9939,14 @@ setInterval(function () {
   // turn = turn.evolve()
   renderLoop()
   console.log('step')
-}, 10)
+}, 100)
 
 const playerSprite = new Image()
 playerSprite.src = './img/arch.png'
 const explosionSprite = new Image(30, 30)
 explosionSprite.src = './img/boom.png'
+const bulletSprite = new Image(10, 10)
+bulletSprite.src = './img/bullet.png'
 var turn = new Turn()
 console.log(turn.players)
 // const player = { x: 50, y: 0, sprite: playerSprite }
@@ -9908,6 +9965,11 @@ function renderLoop () {
     const sprite = playerSprite
     const {x, y} = player
     ctx.drawImage(sprite, x, y, sprite.width * 2, sprite.height * 2)
+  })
+  turn.projectiles.forEach((proj, i) => {
+    const sprite = bulletSprite
+    const {x, y} = proj
+    ctx.drawImage(sprite, x, y, sprite.width, sprite.height)
   })
   turn = turn.evolve()
 

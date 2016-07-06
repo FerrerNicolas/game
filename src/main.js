@@ -13,12 +13,14 @@ setInterval(function () {
   // turn = turn.evolve()
   renderLoop()
   console.log('step')
-}, 10)
+}, 100)
 
 const playerSprite = new Image()
 playerSprite.src = './img/arch.png'
 const explosionSprite = new Image(30, 30)
 explosionSprite.src = './img/boom.png'
+const bulletSprite = new Image(10, 10)
+bulletSprite.src = './img/bullet.png'
 var turn = new Turn()
 console.log(turn.players)
 // const player = { x: 50, y: 0, sprite: playerSprite }
@@ -37,6 +39,11 @@ function renderLoop () {
     const sprite = playerSprite
     const {x, y} = player
     ctx.drawImage(sprite, x, y, sprite.width * 2, sprite.height * 2)
+  })
+  turn.projectiles.forEach((proj, i) => {
+    const sprite = bulletSprite
+    const {x, y} = proj
+    ctx.drawImage(sprite, x, y, sprite.width, sprite.height)
   })
   turn = turn.evolve()
 
