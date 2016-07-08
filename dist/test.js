@@ -1,7 +1,8 @@
+// add rendering from test.js
 var renderer = new PIXI.CanvasRenderer(540, 540)
 document.body.appendChild(renderer.view)
 var stage = new PIXI.Container()
-
+var turn = 0
 PIXI.loader.add('transparent', 'img/transparent.png').load(function (loader, resources) {
   bigArea = []
   for (var i = 0; i < 3; i++) {
@@ -23,6 +24,7 @@ PIXI.loader.add('border', 'img/border.png').load(function (loader, resources) {
 })
 
 PIXI.loader.add('button', 'img/button.png').load(function (loader, resources) {
+  buttontexture = resources.button.texture
   button = []
   for (var i = 0; i < 9; i++) {
     button.push([])
@@ -34,6 +36,7 @@ PIXI.loader.add('button', 'img/button.png').load(function (loader, resources) {
 
       button[i][j].on('mouseover', onDown)
       button[i][j].on('mouseout', onUp)
+      button[i][j].on('mousedown', onClick)
 
       if (i === 0) {
         button[i][j].position.x = 15
@@ -61,6 +64,14 @@ function animate() {
   renderer.render(stage)
 }
 
+PIXI.loader.add('xbutton', 'img/xbutton.png').load(function (loader, resources) {
+  xbuttontexture = resources.xbutton.texture
+})
+
+PIXI.loader.add('obutton', 'img/xbutton.png').load(function (loader, resources) {
+  obuttontexture = resources.obutton.texture
+})
+
 function onDown(eventData) {
   var i = (this.position.x / 58) % 3
   i -= i%1
@@ -77,4 +88,11 @@ function onUp(eventData) {
   j -= j%1
   bigArea[i][j].tint = 0xFFFFFF
   this.tint = 0xFFFFFF
+}
+
+function onClick(eventData) {
+  if (turn === 0) {
+    turn = 1
+    this.texture = xbuttontexture
+  }
 }
