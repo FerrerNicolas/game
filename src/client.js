@@ -8,10 +8,6 @@ socket.on('game:enemy', (i, j) => {
   bigi -= bigi%1
   var bigj = j%3
   bigj -= bigj%1
-  console.log(i)
-  console.log(j)
-  console.log(bigi)
-  console.log(bigj)
   if (cboard.x !== null) bigArea[cboard.x][cboard.y].tint = 0xFFFFFF
   cboard.x = bigi
   cboard.y = bigj
@@ -130,7 +126,7 @@ function onClick(eventData) {
   i -= i%1
   var j = (this.position.y / 58)
   j -= j%1
-  if (turn === 0 && (cboard.x === null || (bigArea[cboard.x][cboard.y].texture === xbuttontexture || bigArea[cboard.x][cboard.y].texture === obuttontexture) || ((cboard.x * 180 <= this.position.x && (cboard.x + 1) * 180 >= this.position.x) && (cboard.y * 180 <= this.position.y && (cboard.y + 1) * 180 >= this.position.y)))) {
+  if (turn === 0 && (button[i][j].texture !== xbuttontexture && button[i][j].texture !== obuttontexture) && (cboard.x === null || (bigArea[cboard.x][cboard.y].texture === xbuttontexture || bigArea[cboard.x][cboard.y].texture === obuttontexture) || ((cboard.x * 180 <= this.position.x && (cboard.x + 1) * 180 >= this.position.x) && (cboard.y * 180 <= this.position.y && (cboard.y + 1) * 180 >= this.position.y)))) {
     socket.emit('game:move', i, j)
     turn = 1
     this.texture = xbuttontexture
@@ -184,7 +180,7 @@ function checkenemywin() {
           bigArea[i][j].texture = obuttontexture
         } else if (button[(i*3) + 2][(j*3) + 0].texture === obuttontexture && button[(i*3) + 1][(j*3) + 1].texture === obuttontexture && button[(i*3) + 0][(j*3) + 2].texture === obuttontexture) {
           bigArea[i][j].texture = obuttontexture
-        }  
+        }
       }
     }
   }
